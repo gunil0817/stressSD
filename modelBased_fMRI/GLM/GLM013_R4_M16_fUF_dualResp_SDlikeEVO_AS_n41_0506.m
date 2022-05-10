@@ -4,7 +4,7 @@ clear all
 spm('defaults','FMRI')
 %% directory setting
 baseDir = 'E:\StressTask';
-dirDM = '\GLM023_R4_M16_spin_Motor_dualResp_EVOnEVS_n41_0510'; % directory for 1st lvl glm
+dirDM = '\GLM013_R4_M16_fuf_dualResp_SDlikeEVO_AS2_n41_0506'; % directory for 1st lvl glm
 
 %2nd group location
 dirGroup = 'E:\StressTask\Round4\2ndResult\'; 
@@ -23,19 +23,22 @@ onsetList = dir('E:\StressTask\Round4\onsetFiles\ParamM16_1\*.mat');
 %location of the task smoothed files
 condName = {'social','SI'};
 noCon = length(condName);
-contrastName = {'split EVO', 'split EVS', ...
-    'incent EVO', 'incent EVS',  'spin EVO', 'spin EVS', ...
-    'spin EVO-EVS', 'sp_onset','in_onset','spin_onset'};
-contrastVector{1} = [0 0   0 1 0   0 0 0];
-contrastVector{2} = [0 0  0 0 1   0 0 0];
-contrastVector{3} = [0 0  0 0 0   0 1 0];
-contrastVector{4} = [0 0  0 0 0   0 0 1];
-contrastVector{5} = [0 0  0 1 0   0 -1 0];
-contrastVector{6} = [0 0  0 0 1   0 0 -1];
-contrastVector{7} = [0 0  0 1 -1  0 -1 1];
-contrastVector{8} = [0 0  1 0 0   0 0 0];
-contrastVector{9} = [0 0  0 0 0   1 0 0];
-contrastVector{10} =[0 0  1 0 0   -1 0 0];
+ contrastName = {'tarS EVO', 'tarS AS', 'tarS SDLike', 'tarM EVO', 'tarM AS', 'tarM SDLike', ...
+     'tarS-M EVO', 'tarS-M AS', 'tarS-M SDLike', 'tarS EVO-AS', 'tarM EVO-AS'};
+contrastVector{1} = [0   0 1 0 0  0 0 0 0];
+contrastVector{2} = [0   0 0 1 0  0 0 0 0];
+contrastVector{3} = [0   0 0 0 1  0 0 0 0];
+contrastVector{4} = [0   0 0 0 0  0 1 0 0];
+contrastVector{5} = [0   0 0 0 0  0 0 1 0];
+contrastVector{6} = [0   0 0 0 0  0 0 0 1];
+contrastVector{7} = [0   0 1 0 0   0 -1 0 0];
+contrastVector{8} = [0   0 0 1 0   0 0 -1 0];
+contrastVector{9} = [0   0 0 0 1   0 0 0 -1];
+contrastVector{10} = [0   0 1 -1 0  0 0 0 0];
+contrastVector{11} = [0   0 0 0  0  0 1 -1 0];
+
+
+ 
 
 %setup for 1st level
 cd(baseDir);
@@ -74,26 +77,30 @@ for numSubj = 1:length(onsetList)
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = onsetTime{:,2};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{39}.*-1, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod = struct('name', {}, 'param', {}, 'poly', 0);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 0;
     
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'Split'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,61};
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'tarSame'; %target + incentive
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,15};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
     %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{33}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'AS', 'param', onsetTime{63}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{25}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'AS', 'param', onsetTime{51}, 'poly', 1);
+    %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(3) = struct('name', 'SD', 'param', onsetTime{53}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(3) = struct('name', 'SDLike', 'param', onsetTime{55}, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 0;
 
 
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'incent'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).onset = onsetTime{:,62};
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'tarMore'; %target + incentive
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).onset = onsetTime{:,16};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
     %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(1) = struct('name', 'EVO', 'param', onsetTime{35}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(2) = struct('name', 'AS', 'param', onsetTime{64}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(1) = struct('name', 'EVO', 'param', onsetTime{27}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(2) = struct('name', 'AS', 'param', onsetTime{52}, 'poly', 1);
+    %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(3) = struct('name', 'SD', 'param', onsetTime{54}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(3) = struct('name', 'SDLike', 'param', onsetTime{56}, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 0;
    
    

@@ -29,7 +29,6 @@ contrastVector{2} = [0 0  0 0 1];
 contrastVector{3} = [0 0  0 1 -1];
 contrastVector{4} = [0 0  1 0 0];
 
-
 %setup for 1st level
 cd(baseDir);
 load('E:\StressTask\Round4\behvData\M16_parameters_220328.mat');
@@ -122,6 +121,7 @@ for numSubj = 1:length(onsetList)
       clearvars jobs
 end
  
+
 %% 2nd level - oneTT 
 jobs = cell(1,2);   
 for cNo = 1:length(contrastName)
@@ -171,6 +171,7 @@ for cNo = 1:length(contrastName)
       spm_jobman('run',jobs);
       clearvars jobs
 end
+
 
 jobs = cell(1,2);   
 %% 2nd level single contrasts
@@ -278,14 +279,11 @@ for cNo = 1: NoC
       clearvars jobs
 end
 
-
 jobs = cell(1,2);   
 %% 2nd level single contrasts
 for cNo = 1:length(contrastName)
       disp( contrastName{cNo} );      
       %%===< contrast managing >
-     
-      
       dirSPM = fullfile(dirGroup,dirSingleName, contrastName{cNo},'SPM.mat');
 %           disp( contrastName{cNo} );
             jobs{1}.spm.stats.con.spmmat = cellstr( dirSPM );
@@ -380,7 +378,6 @@ for cNo = 1: NoC
       
       %===< RUN >
       spm_jobman('run',jobs);
-      
       clearvars jobs
 end
 

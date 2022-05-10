@@ -26,16 +26,16 @@ noCon = length(condName);
 contrastName = {'EQUAL EVO', 'EQUAL EVS', ...
     'TarM EVO', 'TarM EVS',  'EQTM EVO', 'EqTM EVS' ... 
     'EQ', 'TarM','EQ-TarM'};
-contrastVector{1} = [0   0 1 0   0 0 0];
-contrastVector{2} = [0   0 0 1   0 0 0];
-contrastVector{3} = [0   0 0 0   0 1 0];
-contrastVector{4} = [0   0 0 0   0 0 1];
-contrastVector{5} = [0   0 1 0   0 -1 0];
-contrastVector{6} = [0   0 0 1   0 0 -1];
-contrastVector{7} = [0   1 0 0   0 0 0];
+contrastVector{1} = [0 0  0 1 0   0 0 0];
+contrastVector{2} = [0 0  0 0 1   0 0 0];
+contrastVector{3} = [0 0  0 0 0   0 1 0];
+contrastVector{4} = [0 0  0 0 0   0 0 1];
+contrastVector{5} = [0 0  0 1 0   0 -1 0];
+contrastVector{6} = [0 0  0 0 1   0 0 -1];
+contrastVector{7} = [0 0  1 0 0   0 0 0];
 
-contrastVector{8} = [0   0 0 0   1 0 0];
-contrastVector{9} = [0   1 0 0   -1 0 0];
+contrastVector{8} = [0 0  0 0 0   1 0 0];
+contrastVector{9} = [0 0  1 0 0   -1 0 0];
 
 
 %setup for 1st level

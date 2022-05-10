@@ -4,16 +4,17 @@ clear all
 spm('defaults','FMRI')
 %% directory setting
 baseDir = 'E:\StressTask';
-dirDM = '\GLM023_R4_M16_spin_Motor_dualResp_EVOnEVS_n41_0510'; % directory for 1st lvl glm
+dirDM = '\GLM001_R4_M16_singResp_EVOnEVS_n41_0328'; % directory for 1st lvl glm
 
 %2nd group location
-dirGroup = 'E:\StressTask\Round4\2ndResult\'; 
+dirGroup = 'E:\StressTask\Round3\2ndResult\'; 
 analysisType = 'oneTT\';
 dirSingleName =strcat(dirDM,'\', analysisType);
 dirGroupName = strcat(dirDM, '_',analysisType); %for MR, different
 
+
 %change directory
-cd(strcat(baseDir,'\Task1'));
+cd(strat(baseDir,'\Task1'));
 
 %scan Dir
 dirScanLoc = dir('**\swau*Task1*.nii'); %directories for task_fMRI.nii
@@ -23,24 +24,14 @@ onsetList = dir('E:\StressTask\Round4\onsetFiles\ParamM16_1\*.mat');
 %location of the task smoothed files
 condName = {'social','SI'};
 noCon = length(condName);
-contrastName = {'split EVO', 'split EVS', ...
-    'incent EVO', 'incent EVS',  'spin EVO', 'spin EVS', ...
-    'spin EVO-EVS', 'sp_onset','in_onset','spin_onset'};
-contrastVector{1} = [0 0   0 1 0   0 0 0];
-contrastVector{2} = [0 0  0 0 1   0 0 0];
-contrastVector{3} = [0 0  0 0 0   0 1 0];
-contrastVector{4} = [0 0  0 0 0   0 0 1];
-contrastVector{5} = [0 0  0 1 0   0 -1 0];
-contrastVector{6} = [0 0  0 0 1   0 0 -1];
-contrastVector{7} = [0 0  0 1 -1  0 -1 1];
-contrastVector{8} = [0 0  1 0 0   0 0 0];
-contrastVector{9} = [0 0  0 0 0   1 0 0];
-contrastVector{10} =[0 0  1 0 0   -1 0 0];
+contrastName = {'chosenVal'};
+contrastVector{1} = [0 0  0 1 0];
 
 %setup for 1st level
 cd(baseDir);
-load('E:\StressTask\Round4\behvData\M16_parameters_220328.mat');
-k = M16.k; eta = M16.eta; beta = M16.beta;
+load('E:\StressTask\behvData\m14Parameters_220321.mat');
+k = M14.k; eta = M14.eta; beta = M14.beta;
+
 
 %% running 1st lvl
 matlabbatch = cell(1,2);
@@ -74,28 +65,17 @@ for numSubj = 1:length(onsetList)
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = onsetTime{:,2};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{39}.*-1, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 0;
     
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'Split'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,61};
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = condName{2}; %target + incentive
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,3};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
     %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{33}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'AS', 'param', onsetTime{63}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{8}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'EVS', 'param', onsetTime{7}, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 0;
-
-
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'incent'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).onset = onsetTime{:,62};
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).duration = 0;
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
-    %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(1) = struct('name', 'EVO', 'param', onsetTime{35}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(2) = struct('name', 'AS', 'param', onsetTime{64}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 0;
-   
    
     matlabbatch{1}.spm.stats.fmri_spec.sess.multi = {''};
     matlabbatch{1}.spm.stats.fmri_spec.sess.regress = struct('name', {}, 'val', {});
@@ -196,6 +176,7 @@ for cNo = 1:length(contrastName)
       disp( contrastName{cNo} );      
       %%===< contrast managing >
      
+      
       dirSPM = fullfile(dirGroup,dirSingleName, contrastName{cNo},'SPM.mat');
 %           disp( contrastName{cNo} );
             jobs{1}.spm.stats.con.spmmat = cellstr( dirSPM );
@@ -229,6 +210,7 @@ for cNo = 1:length(contrastName)
       spm_jobman('run',jobs);
       clearvars jobs
 end
+
 
 %% 2nd_lvl setting
 analysisType = 'MR_K';

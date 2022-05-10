@@ -4,7 +4,7 @@ clear all
 spm('defaults','FMRI')
 %% directory setting
 baseDir = 'E:\StressTask';
-dirDM = '\GLM023_R4_M16_spin_Motor_dualResp_EVOnEVS_n41_0510'; % directory for 1st lvl glm
+dirDM = '\GLM001_R4_M16_singResp_SDlike_n41_0506'; % directory for 1st lvl glm
 
 %2nd group location
 dirGroup = 'E:\StressTask\Round4\2ndResult\'; 
@@ -23,19 +23,17 @@ onsetList = dir('E:\StressTask\Round4\onsetFiles\ParamM16_1\*.mat');
 %location of the task smoothed files
 condName = {'social','SI'};
 noCon = length(condName);
-contrastName = {'split EVO', 'split EVS', ...
-    'incent EVO', 'incent EVS',  'spin EVO', 'spin EVS', ...
-    'spin EVO-EVS', 'sp_onset','in_onset','spin_onset'};
-contrastVector{1} = [0 0   0 1 0   0 0 0];
-contrastVector{2} = [0 0  0 0 1   0 0 0];
-contrastVector{3} = [0 0  0 0 0   0 1 0];
-contrastVector{4} = [0 0  0 0 0   0 0 1];
-contrastVector{5} = [0 0  0 1 0   0 -1 0];
-contrastVector{6} = [0 0  0 0 1   0 0 -1];
-contrastVector{7} = [0 0  0 1 -1  0 -1 1];
-contrastVector{8} = [0 0  1 0 0   0 0 0];
-contrastVector{9} = [0 0  0 0 0   1 0 0];
-contrastVector{10} =[0 0  1 0 0   -1 0 0];
+contrastName = {'SD', 'SD_Like_soc', 'EVO', 'selfReward', ...
+    'SD_Like_SI', 'EVO-selfR', 'socSDL-SISDL'};
+contrastVector{1} = [0 1 0  0 0 0 0];
+contrastVector{2} = [0 0 1  0 0 0 0];
+contrastVector{3} = [0 0 0  0 1 0 0];
+contrastVector{4} = [0 0 0  0 0 1 0];
+contrastVector{5} = [0 0 0  0 0 0 1];
+contrastVector{6} = [0 0 0  0 1 -1 0];
+contrastVector{7} = [0 0 1  0 0 0 -1];
+
+
 
 %setup for 1st level
 cd(baseDir);
@@ -74,28 +72,19 @@ for numSubj = 1:length(onsetList)
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = onsetTime{:,2};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{39}.*-1, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{39}*-1, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod(2) = struct('name', 'SDLike', 'param', onsetTime{49}, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 0;
     
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'Split'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,61};
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = condName{2}; %target + incentive
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = onsetTime{:,3};
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
     %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{33}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'AS', 'param', onsetTime{63}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'EVO', 'param', onsetTime{8}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(2) = struct('name', 'amountSelf', 'param', onsetTime{50}, 'poly', 1);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(3) = struct('name', 'SDLike', 'param', onsetTime{49}, 'poly', 1);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 0;
-
-
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'incent'; %target + incentive
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).onset = onsetTime{:,62};
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).duration = 0;
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
-    %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod(1) = struct('name', 'target(SD)', 'param', onsetTime{6}.*-1, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(1) = struct('name', 'EVO', 'param', onsetTime{35}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod(2) = struct('name', 'AS', 'param', onsetTime{64}, 'poly', 1);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 0;
-   
    
     matlabbatch{1}.spm.stats.fmri_spec.sess.multi = {''};
     matlabbatch{1}.spm.stats.fmri_spec.sess.regress = struct('name', {}, 'val', {});
@@ -140,6 +129,7 @@ for numSubj = 1:length(onsetList)
       clearvars jobs
 end
  
+
 %% 2nd level - oneTT 
 jobs = cell(1,2);   
 for cNo = 1:length(contrastName)
@@ -189,6 +179,7 @@ for cNo = 1:length(contrastName)
       spm_jobman('run',jobs);
       clearvars jobs
 end
+
 
 jobs = cell(1,2);   
 %% 2nd level single contrasts
@@ -296,14 +287,11 @@ for cNo = 1: NoC
       clearvars jobs
 end
 
-
 jobs = cell(1,2);   
 %% 2nd level single contrasts
 for cNo = 1:length(contrastName)
       disp( contrastName{cNo} );      
       %%===< contrast managing >
-     
-      
       dirSPM = fullfile(dirGroup,dirSingleName, contrastName{cNo},'SPM.mat');
 %           disp( contrastName{cNo} );
             jobs{1}.spm.stats.con.spmmat = cellstr( dirSPM );
@@ -398,7 +386,6 @@ for cNo = 1: NoC
       
       %===< RUN >
       spm_jobman('run',jobs);
-      
       clearvars jobs
 end
 

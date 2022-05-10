@@ -31,7 +31,7 @@ contrastVector{2} = [0 0  0 0 1];
 cd(baseDir);
 load('E:\StressTask\Round4\behvData\M16_parameters_220328.mat');
 k = M16.k; eta = M16.eta; beta = M16.beta;
-
+param= [k eta beta];
 %% running 1st lvl
 matlabbatch = cell(1,2);
 for numSubj = 1:length(onsetList)
