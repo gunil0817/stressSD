@@ -14,6 +14,7 @@ datapreprocessing = function(dat) {
   self_default   = dat$amount_default
   amount_inequal = other_incent - self_default
   SD             = dat$social_distance
+  SDLike         = dat$SD_likeRaw
   split          = dat$choice
   subjID         = dat$subjID
   
@@ -37,6 +38,9 @@ datapreprocessing = function(dat) {
   dim(subjID)       <- c(maxTrials,N)
   subjID            = t(subjID)
   
+  dim(SDLike)       <- c(maxTrials,N)
+  SDLike            = t(SDLike)
+  
   dim(amount_inequal) <- c(maxTrials,N)
   inequality        = t(amount_inequal)
   
@@ -49,6 +53,7 @@ datapreprocessing = function(dat) {
     amount_self     = amount_self,
     amount_other    = amount_other,
     amount_default  = amount_default,
+    SDLike          = SDLike,
     inequality      = inequality,
     split           = split
   )
