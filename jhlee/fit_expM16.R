@@ -5,6 +5,7 @@ setwd('/home/jhlee4991/Github/project_stressSD/bayesian_modeling/')
 
 # dat2 = read.csv("newDesign.csv", header = T)
 PATH_DATA = '/home/jhlee4991/Github/project_stressSD/bayesian_modeling/data/'
+PATH_FIG = '~/Github/project_stressSD/bayesian_modeling/figures'
 
 tmp_data <- list.files(PATH_DATA, pattern = "*.txt")
 dat2 <- read.table(paste0(PATH_DATA, tmp_data[1]), head = T, sep = "\t")
@@ -137,12 +138,30 @@ dataList <- list(
 M16 = stan("models/M16.stan", data= dataList, pars = c("k", 'beta', "tau", "eta", 
                                                              "log_lik", "mu_k", "mu_beta", "mu_eta", "mu_tau"),
            iter = 6000, warmup = 2000, chains = 4, cores = 80, control = list(adapt_delta = 0.98))
-
-
 parameters <- rstan::extract(M16)
 
+# Group-level means plot
+pars_group = c("mu_beta", "mu_k", "mu_tau")
+color_scheme_set(scheme = "blue")
+mcmc_trace(M16, pars = pars_group)
+fn = sprintf('%s/traceplots-group-level-means.png', PATH_FIG)
+png(fn, width = 300, height = 250, units = "mm", res = 300)
 
-#params = k, beta, tau, eta
+# Indi-level 
+pars_ind = c("k", "beta", "tau")
+model_name = "M16"
+
+for (par in pars_ind) {
+  fn = sprintf('%s/traceplots-%s-%s.png', PATH_FIG, model_name, par)
+  png(fn, width = 360, height = 240, units = "mm", res = 300)
+  print(traceplot(M16, pars = par))
+  dev.off()  
+  print(sprintf('Traceplot saved: %s-%s', model_name, par))
+}
+print(traceplot(M16, pars = pars_ind[8]))
+
+
+
 dfPre = data.frame(params[,1], params[,2], params[,4], colMeans(parameters$k), colMeans(parameters$beta), colMeans(parameters$eta))
 names(dfPre) = c('true_k', 'true_beta', 'true_eta', 'pred_k', 'pred_beta', 'pred_eta')
 
