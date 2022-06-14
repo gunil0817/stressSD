@@ -1,0 +1,171 @@
+---
+title: "Extract parameters and check model fitting results"
+subtitle: "project ts yonsei"
+author: "Mina Kwon"
+date: '\today'
+output:
+  pdf_document: 
+    latex_engine: lualatex
+    number_sections: yes
+    toc: True
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+rm(list = ls())
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(knitr)
+library(devtools)
+library(readr)
+library(dplyr)
+
+setwd('/home/minakwon/github_repo/project_ts_fMRI/modeling/')
+data_dir <- '/data/project_ts_yonsei/modeling_data'
+save_dir <- './results/par6_model'
+
+# check save path 
+if (!dir.exists(save_dir)){
+  dir.create(save_dir)
+}
+# if (!dir.exists(paste0(save_dir, "/state_value/"))){
+#   dir.create(paste0(save_dir, "/state_value/"))
+# }
+if (!dir.exists(paste0(save_dir, "/prediction_error/"))){
+  dir.create(paste0(save_dir, "/prediction_error/"))
+}
+
+source('extract_parameters_function.R')
+
+# model parameters to check R hat 
+group_pars <- c('mu_a1', 'mu_a2', 'mu_beta1', 'mu_beta2', 'mu_pi', 'mu_w', 'sigma') 
+idx <- length(group_pars) # index of the last group level parameter
+ind_pars <- c('a1', 'a2', 'beta1', 'beta2', 'pi', 'w')
+model_pars <- c(group_pars, ind_pars)
+```
+
+# Extract parameters from model fit results
+## Healthy group
+```{r healthy, include= TRUE, echo=FALSE}
+data_path <- file.path(data_dir, 'fit_par6_healthy.RData') 
+assign('fit_healthy', get(load(data_path)))
+
+pars_healthy <- rstan::extract(fit_healthy)
+ind_par_healthy <- extract_param_par6(pars_healthy, data_healthy, save_dir)
+
+# Convergence check & model performance
+# group parameter
+traceplot(fit_healthy, pars = model_pars[1:idx])
+plot(fit_healthy, show_density = T, pars = model_pars[1:idx]) + 
+  ggplot2::ggtitle('group parameter')
+
+# individual parameter
+for (i in 1:length(model_pars)){
+  if (i > idx){
+    p1 <- traceplot(fit_healthy, pars = model_pars[i])
+    p2 <- plot(fit_healthy, show_density = T, pars = model_pars[i]) #, pars = "w")
+    
+    print(p1) 
+    print(p2) 
+  }
+}
+
+get_Rhat(fit_healthy, model_pars)
+```
+\pagebreak
+
+## Alcohol group
+```{r alcohol, include= TRUE, echo=FALSE}
+data_path <- file.path(data_dir, 'fit_par6_alcohol.RData') 
+assign('fit_alcohol', get(load(data_path)))
+
+pars_alcohol <- rstan::extract(fit_alcohol)
+ind_par_alcohol <- extract_param_par6(pars_alcohol, data_alcohol, save_dir)
+# Convergence check & model performance
+# group parameter
+traceplot(fit_alcohol, pars = model_pars[1:idx])
+plot(fit_alcohol, show_density = T, pars = model_pars[1:idx]) + 
+  ggplot2::ggtitle('group parameter')
+
+# individual parameter
+for (i in 1:length(model_pars)){
+  if (i > idx){
+    p1 <- traceplot(fit_alcohol, pars = model_pars[i])
+    p2 <- plot(fit_alcohol, show_density = T, pars = model_pars[i]) #, pars = "w")
+    
+    print(p1) 
+    print(p2) 
+  }
+}
+
+get_Rhat(fit_alcohol, model_pars)
+```
+\pagebreak
+
+## Gaming group
+```{r gaming, include= TRUE, echo=FALSE}
+data_path <- file.path(data_dir, 'fit_par6_gaming.RData') 
+assign('fit_gaming', get(load(data_path)))
+
+pars_gaming <- rstan::extract(fit_gaming)
+ind_par_gaming <- extract_param_par6(pars_gaming, data_gaming, save_dir)
+# Convergence check & model performance
+# group parameter
+traceplot(fit_gaming, pars = model_pars[1:idx])
+plot(fit_gaming, show_density = T, pars = model_pars[1:idx]) + 
+  ggplot2::ggtitle('group parameter')
+
+# individual parameter
+for (i in 1:length(model_pars)){
+  if (i > idx){
+    p1 <- traceplot(fit_gaming, pars = model_pars[i])
+    p2 <- plot(fit_gaming, show_density = T, pars = model_pars[i]) #, pars = "w")
+    
+    print(p1) 
+    print(p2) 
+  }
+}
+get_Rhat(fit_gaming, model_pars)
+```
+
+```{r save others, include = FALSE}
+################################################
+## Save individual parameter values 
+ind_par <- rbind(ind_par_healthy, ind_par_alcohol, ind_par_gaming)
+ind_par <- as.data.frame(ind_par)
+
+ind_par <- ind_par %>% arrange(subjectID)
+
+write_tsv(ind_par, file.path(save_dir, "individual_parameters.txt"), col_names = T)
+
+################################################
+## mean correction for pe_1_diff regressor 
+file_path <- file.path(save_dir, "prediction_error/")
+
+for(f in list.files(file_path, pattern = "sub-")) {
+  tmp = read_tsv(file = paste0(file_path, f), col_names = T)
+  tmp2 <- tmp %>% filter(pe_1_diff != -999) 
+  tmp3 <- tmp %>% mutate(pe_1_diff = pe_1_diff - mean(tmp2$pe_1_diff)) %>% # exclude no response trial when calculating mean 
+    mutate(pe_1_diff = ifelse(pe_1_diff < -990, -999, pe_1_diff)) # ex) -998.2 in pe_1_diff into -999 (doesn't really matter, but just for consistency and visual comfort.. ;-) ) 
+  write_tsv(tmp3, path = file.path(file_path, f))
+}
+
+################################################
+## Check LOOIC
+get_looic <- function(fit){
+  index <- loo(fit, pars = "log_lik")
+  return(index$looic)
+}
+
+rlt <- data.frame('model' = strsplit(save_dir, '/')[[1]][3],
+                  'healthy' = get_looic(fit_healthy),
+                  'alcohol' = get_looic(fit_alcohol), 
+                  'gaming' = get_looic(fit_gaming))
+write_tsv(rlt, path = file.path(save_dir, 'model_looic.tsv'))
+system("slackbot -d '@minakwon' -m '3_extract_parameters_par6.Rmd done!'")
+
+```
+
+

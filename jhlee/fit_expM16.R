@@ -48,7 +48,7 @@ options(mc.cores = parallel::detectCores())
 print(nump)
 #assigning conditions //
 for (i in 1:nump){
-  tmpData = subset(dat2, subjID == 1) #use the first subject data for conditons. 
+  tmpData = subset(dat2, subjID == 1) #use the first subject data for conditions 
   AO = tmpData$amount_other
   SD = tmpData$social_distance
   AS = tmpData$amount_self
