@@ -105,7 +105,7 @@ sigmoid <- function(tau, x){
 }
 
 # plot
-tau = 0.1
+tau = 2
 cbind(df_social_distance,
       as.data.frame.table(SVnet) %>% 
         mutate(SVnet = Freq) %>% 
@@ -123,8 +123,10 @@ cbind(df_social_distance,
   geom_point() + 
   geom_smooth(method = "nls", 
               formula = y ~ 1/(1 + exp(-tau * x)), 
-              method.args = list(start = list(tau = 0.1, x = social_distance)),
+              method.args = list(start = list(tau, x = social_distance)),
               se = TRUE) + 
+  xlab("Social Distance") + 
+  ylab("Probability split") + 
   theme_bw()+
   theme(panel.grid.minor = element_blank(),
         panel.grid.major = element_blank())
