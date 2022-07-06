@@ -1,5 +1,6 @@
 library(rstan)
 library(bayesplot)
+library(latex2exp)
 library(ggplot2)
 library(tidyverse)
 
@@ -33,3 +34,80 @@ df_param %>%
   select(mu_k) %>% 
   ggplot() + 
   geom_jitter(aes(x=1:nrow(df_param), y=mu_k)) 
+
+# Density figure
+# FIGURE 2A #
+# mu_k # 
+# TODO: add 95% HDI
+df_param %>% 
+  ggplot(aes(x = mu_k)) + 
+  # coord_cartesian(xlim = c(0, 0.4)) + 
+  geom_histogram(binwidth = 0.001, 
+                 color="black", fill="gray") +
+  geom_vline(aes(xintercept = mean(mu_k)),
+             color="black", linetype="dashed", 
+             size=1) + 
+  geom_density(alpha = 0.5, adjust = 5) + 
+  # scale_fill_viridis(discrete = TRUE) + 
+  xlab(TeX("$\\k$ (Social discounting rate)"))+
+  theme_bw() +
+  theme(legend.position = 'none',
+        legend.title = element_blank(),
+        # axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.spacing = unit(1, 'pt'),
+        strip.background = element_blank())
+
+# FIGURE 2B #
+# mu_beta # 
+df_param %>% 
+  ggplot(aes(x = mu_beta)) + 
+  # coord_cartesian(xlim = c(0, 0.4)) + 
+  geom_histogram(binwidth = 0.01, 
+                 color="black", fill="gray") +
+  geom_vline(aes(xintercept = mean(mu_beta)),
+             color="black", linetype="dashed", 
+             size=1) + 
+  geom_density(alpha = 0.5, adjust = 5) + 
+  # scale_fill_viridis(discrete = TRUE) + 
+  xlab(TeX("$\\beta$ (Reward sensitivity)"))+
+  theme_bw() +
+  theme(legend.position = 'none',
+        legend.title = element_blank(),
+        # axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.spacing = unit(1, 'pt'),
+        strip.background = element_blank())
+
+# FIGURE 2A #
+# mu_tau # 
+df_param %>% 
+  ggplot(aes(x = mu_tau)) + 
+  coord_cartesian(xlim = c(0.3, 0.8)) + 
+  geom_histogram(binwidth = 0.003, 
+                 color="black", fill="gray") +
+  geom_vline(aes(xintercept = mean(mu_tau)),
+             color="black", linetype="dashed", 
+             size=1) + 
+  geom_density(alpha = 0.5, adjust = 5) + 
+  # scale_fill_viridis(discrete = TRUE) + 
+  xlab(TeX("$\\tau$ (Inverse temperature)"))+
+  theme_bw() +
+  theme(legend.position = 'none',
+        legend.title = element_blank(),
+        # axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.spacing = unit(1, 'pt'),
+        strip.background = element_blank())
