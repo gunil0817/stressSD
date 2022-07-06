@@ -8,15 +8,17 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R
 { 
   numTrial = 120 #144
   #K = seq(0.01,0.2,0.02) #discounting rate
-  K = c(0.03, 0.09, 0.15)
+  # K = c(0.02, 0.2)
+  K = 0.1
   #TAU = c(0.05, 0.1, 0.3, 0.5, 1, 1.5)
   #TAU = c(.05, 0.3, 0.5, .7, 1)
   TAU = c(2) # tau values are pinpointed to see the dyanmics of K and beta
   BETA = seq(0.15,1.45,0.15)
-  ETA = c(0.1, 0.6)
+  # ETA = c(0.1, 0.6)
+  ETA = 0
   #BETA = seq(0.1,0.7,0.05)
   nrep = 1                   # number of repetition for now
-  nump = length(unique(data$subjID))
+  nump = length(BETA)
     # length(K)*length(TAU)*length(BETA)*length(ETA) # num synthethic subject
 }
 
@@ -33,6 +35,7 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R
   EVO              = array(0, c(nump,numTrial))
   EVS              = array(0, c(nump,numTrial))
   psplit           = array(0, c(nump,numTrial))
+  SVnet            = array(0, c(nump,numTrial))
 } 
 
 print(nump)
@@ -105,9 +108,11 @@ sigmoid <- function(tau, x){
 }
 
 # plot
-tau = 2
+# FIGURE 2A 
+# for beta 
+tau = 0.1
 cbind(df_social_distance,
-      as.data.frame.table(SVnet) %>% 
+      as.data.frame.table(t(SVnet)) %>% 
         mutate(SVnet = Freq) %>% 
         select(SVnet),
       as.data.frame.table(psplit) %>% 
@@ -118,9 +123,15 @@ cbind(df_social_distance,
     x = social_distance,
     y = sigmoid(tau, SVnet)
     # y = psplit
-  ) %>%  
-  ggplot(aes(x = x, y = y)) + 
+  ) %>% 
+  group_by(subjID, x) %>% 
+  summarise(
+    y = mean(y)
+  ) %>% 
+  ggplot(aes(x = x, y = y, color = subjID)) + 
   geom_point() + 
+  geom_line() + 
+  scale_color_viridis(discrete = TRUE) +
   geom_smooth(method = "nls", 
               formula = y ~ 1/(1 + exp(-tau * x)), 
               method.args = list(start = list(tau, x = social_distance)),
@@ -128,8 +139,17 @@ cbind(df_social_distance,
   xlab("Social Distance") + 
   ylab("Probability split") + 
   theme_bw()+
-  theme(panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank())
+  theme(legend.position = 'none',
+        legend.title = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.spacing = unit(1, 'pt'),
+        strip.background = element_blank())
 
-system(sprintf("slackbot -d '@jeunghyunlee' -m 'model fitting complete - %s'", NAME_MODEL))
 
