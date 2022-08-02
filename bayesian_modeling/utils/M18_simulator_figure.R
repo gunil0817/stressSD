@@ -13,7 +13,7 @@
 #Kun Il Kim edited in 2022. 03. 23. 
 # Last edit: JH Lee 2022.06.13.
 
-M16_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
+M18_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
   seed = 2022
   
   for (i in 1:dataList$N) {
@@ -32,8 +32,8 @@ M16_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
   
     for (n in 1:nrep){
       for (t in 1:numTrial) {
-        ev_self  = beta*(amount_self[1,t] - amount_default[1,t])
-        ev_other = (amount_other[1,t] * exp( -1* k * social_distance[i,t])) - eta * inequality[i, t]
+        ev_self = (amount_self[1, t] - amount_default[1, t]) * beta
+        ev_other = (amount_other[1, t]) * exp(-1 * ( k * social_distance[i, t]))  - eta * inequality[i, t]
         SVnet[1, t] =  ev_other - ev_self
         psplit[1, t] = 1 / (1 + exp(-1*tau*SVnet[1,t]))
         psplit[1, t]  = psplit[1,t] * 0.9998 + 0.0001    
@@ -50,7 +50,7 @@ M16_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
   #return(SVnet) //returning SVnet for all trials given the composition of parameters. 
 }
 
-M16_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
+M18_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
   seed = 2022
   for (i in 1:dataList$N) {
     tmpData         = subset(dataList, dataList$subjID == i)
@@ -68,8 +68,8 @@ M16_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
 
     for (n in 1:nrep){
       for (t in 1:numTrial) {
-        ev_self  = beta*(amount_self[1,t] - amount_default[1,t])
-        ev_other = (amount_other[1,t] * exp( -1* k * social_distance[i,t])) - eta * inequality[i, t]
+        ev_self = (amount_self[1, t] - amount_default[1, t]) * beta
+        ev_other = (amount_other[1, t]) * exp(-1 * ( k * social_distance[i, t]))  - eta * inequality[i, t]
         SVnet[1, t] =  ev_other - ev_self
         psplit[1, t] = 1 / (1 + exp(-1*tau*SVnet[1,t]))
         psplit[1, t]  = psplit[1,t] * 0.9998 + 0.0001    

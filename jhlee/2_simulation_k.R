@@ -1,8 +1,21 @@
 library(rstan)
 library(ggbump)
 library(ggplot2)
+library(viridis)
 library(tidyverse)
+source("~/Github/project_stressSD/bayesian_modeling/utils/M15_simulator_figure.R")
 source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R")
+source("~/Github/project_stressSD/bayesian_modeling/utils/M17_simulator_figure.R")
+source("~/Github/project_stressSD/bayesian_modeling/utils/M18_simulator_figure.R")
+
+# GLOBAL Variables -------------------------------------
+FOLDER_ROOT = '/home/jhlee4991/Github/project_stressSD/' # FOLDER_EXP
+FOLDER_MODEL = sprintf('%sbayesian_modeling/', FOLDER_ROOT)
+FILE_DATA = sprintf("%sdata/SD_120_whole_n41_fairSeq.txt", FOLDER_MODEL)
+NAME_MODEL = "M18"
+
+# Read data -------------------------------------
+data_behav <- read.table(FILE_DATA, sep = '\t', header = T)
 
 # setting true values for parameters
 { 
@@ -19,9 +32,8 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R
   #BETA = seq(0.1,0.7,0.05)
   nrep = 1                   # number of repetition for now
   nump = length(BETA)
-    # length(K)*length(TAU)*length(BETA)*length(ETA) # num synthethic subject
+  # length(K)*length(TAU)*length(BETA)*length(ETA) # num synthethic subject
 }
-
 # synthetic subject task conditions
 {
   amount_self      = array(0, c(nump,numTrial))
@@ -29,7 +41,7 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R
   amount_default   = array(0, c(nump,numTrial))
   social_distance  = array(0, c(nump,numTrial))
   split            = array(0, c(nump,numTrial))
-  subjID = array((1:nump), c(nump,numTrial))
+  subjID           = array((1:nump), c(nump,numTrial))
   inequality       = array(0, c(nump, numTrial))
   ### 
   EVO              = array(0, c(nump,numTrial))
@@ -38,17 +50,16 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator_figure.R
   SVnet            = array(0, c(nump,numTrial))
 } 
 
-print(nump)
 # assigning conditions //
 for (i in 1:nump){
-  tmpData = subset(data, subjID == 1) #use the first subject data for conditons. 
+  tmpData = subset(data_behav, subjID == 1) # use the first subject data for conditions. 
   AO = tmpData$amount_other
   SD = tmpData$social_distance
   AS = tmpData$amount_self
   AD = tmpData$amount_default
   
   amount_self[i, 1:numTrial] = AS
-  amount_other[i, 1:numTrial] =AO
+  amount_other[i, 1:numTrial] = AO
   amount_default[i, 1:numTrial] =  AD
   social_distance[i, 1:numTrial] = SD
 }
@@ -71,13 +82,13 @@ for (k in 1:length(K)){
     for (tau in 1:length(TAU)) {
       for (eta in 1:length(ETA)) {
         # generate the fake data for 10 subjects at given parameters.
-        SVnet[counts,] = M16_simulator_SVnet(dataList = fdList,
+        SVnet[counts,] = M18_simulator_SVnet(dataList = fdList,
                                            k = K[k],
                                            beta = BETA[beta],
                                            tau = TAU[tau],
                                            eta = ETA[eta],
                                            nrep = 1)
-        psplit[counts,] = M16_simulator_psplit(dataList = fdList,
+        psplit[counts,] = M18_simulator_psplit(dataList = fdList,
                                          k = K[k],
                                          beta = BETA[beta],
                                          tau = TAU[tau],
@@ -111,7 +122,7 @@ sigmoid <- function(tau, x){
 # FIGURE 2A 
 # for beta 
 tau = 0.1
-cbind(df_social_distance,
+gg_beta <- cbind(df_social_distance,
       as.data.frame.table(t(SVnet)) %>% 
         mutate(SVnet = Freq) %>% 
         select(SVnet),
@@ -131,12 +142,14 @@ cbind(df_social_distance,
   ggplot(aes(x = x, y = y, color = subjID)) + 
   geom_point() + 
   geom_line() + 
-  scale_color_viridis(discrete = TRUE) +
+  coord_cartesian(ylim = c(0, 1.0)) + 
+  scale_color_viridis(discrete = TRUE, 
+                      name = TeX("$\\beta$")) +
   geom_smooth(method = "nls", 
               formula = y ~ 1/(1 + exp(-tau * x)), 
               method.args = list(start = list(tau, x = social_distance)),
               se = TRUE) + 
-  xlab("Social Distance") + 
+  xlab("Social distance") + 
   ylab("Probability split") + 
   theme_bw()+
   theme(legend.position = 'none',
@@ -152,4 +165,7 @@ cbind(df_social_distance,
         panel.spacing = unit(1, 'pt'),
         strip.background = element_blank())
 
+# Save the figure -------------------------------------
+ggsave2(file.path(PATH_FIGURES, sprintf('%s_simulated_k_change.png', NAME_MODEL)), gg_beta,
+        dpi = 300, width = 9, height = 9)
 

@@ -5,6 +5,7 @@ library(ggplot2)
 library(tidyverse)
 
 source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator.R")
+setwd("~/Github/project_stressSD/jhlee")
 
 # FOLDER_ROOT = '/home/jhlee4991/Github/project_stressSD/' # FOLDER_EXP
 # FOLDER_MODEL = sprintf('%sbayesian_modeling/', FOLDER_ROOT)
@@ -12,6 +13,7 @@ source("~/Github/project_stressSD/bayesian_modeling/utils/M16_simulator.R")
 # FOLDER_OUTPUT = sprintf('%sstan-output/', FOLDER_MODEL)
 PATH_MODEL_OUTPUT = '/data2/project_SD/model-output/'
 PATH_STAN_OUTPUT = '/data2/project_SD/stan-output/'
+PATH_FIGURES = './figures'
 
 NAME_MODEL = "M15"
 
@@ -89,7 +91,7 @@ df_param %>%
 
 # FIGURE 2A #
 # mu_tau # 
-df_param %>% 
+gg_tau <- df_param %>% 
   ggplot(aes(x = mu_tau)) + 
   coord_cartesian(xlim = c(0.3, 0.8)) + 
   geom_histogram(binwidth = 0.003, 
@@ -111,3 +113,7 @@ df_param %>%
         panel.grid.major = element_blank(),
         panel.spacing = unit(1, 'pt'),
         strip.background = element_blank())
+
+# Save the figure -------------------------------------
+ggsave2(file.path(PATH_FIGURES, sprintf('%s_simulated_tau.png', NAME_MODEL)), gg_tau,
+        dpi = 300, width = 12, height = 9)

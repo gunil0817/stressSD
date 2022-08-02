@@ -30,8 +30,8 @@ M16_simulator = function(dataList, k, beta, tau, eta, nrep) {
   
     for (n in 1:nrep){
       for (t in 1:numTrial) {
-        ev_self  = beta*(amount_self[1,t] - amount_default[1,t])
-        ev_other = (amount_other[1,t] * exp( -1* k * social_distance[i,t])) - eta * inequality[i, t]
+        ev_self = (amount_self[1, t] - amount_default[1, t]) * beta
+        ev_other = (amount_other[1, t]) * exp(-1 * ( k * social_distance[i, t]))  - eta * inequality[i, t]
         SVnet[1, t] =  ev_other - ev_self
         psplit[1, t] = 1 / (1 + exp(-1*tau*SVnet[1,t]))
         psplit[1, t]  = psplit[1,t] * 0.9998 + 0.0001    
