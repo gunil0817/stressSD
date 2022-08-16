@@ -16,14 +16,12 @@
 M18_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
   seed = 2022
   
-  for (i in 1:dataList$N) {
-  tmpData         = subset(dataList, dataList$subjID == i)
   amount_self     = dataList$amount_self
   amount_other    = dataList$amount_other
   amount_default  = dataList$amount_default
   social_distance = dataList$social_distance
-  inequality      = amount_other - amount_default # 0 for equal, 20 for TarMore
-  numTrial = 120
+  inequality      = dataList$inequality # 0 for equal, 20 for TarMore
+  numTrial = length(amount_self[1,])
   
   # allocating # trial X nrep
   fakesplit <- array(0, c(nrep, numTrial))
@@ -32,8 +30,8 @@ M18_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
   
     for (n in 1:nrep){
       for (t in 1:numTrial) {
-        ev_self = (amount_self[1, t] - amount_default[1, t]) * beta
-        ev_other = (amount_other[1, t]) * exp(-1 * ( k * social_distance[i, t]))  - eta * inequality[i, t]
+        ev_self = (amount_self[1,t] - amount_default[1,t]) * beta
+        ev_other = (amount_other[1,t]) * exp(-1 * ( k * social_distance[1,t]))  - eta * inequality[1,t]
         SVnet[1, t] =  ev_other - ev_self
         psplit[1, t] = 1 / (1 + exp(-1*tau*SVnet[1,t]))
         psplit[1, t]  = psplit[1,t] * 0.9998 + 0.0001    
@@ -41,7 +39,6 @@ M18_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
       }
        #this will give 1 or 0
     }
-  }
   
   #print(fakesplit[1,])
   # #return(psplit) #for returning probabilites
@@ -52,14 +49,12 @@ M18_simulator_SVnet = function(dataList, k, beta, tau, eta, nrep) {
 
 M18_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
   seed = 2022
-  for (i in 1:dataList$N) {
-    tmpData         = subset(dataList, dataList$subjID == i)
     amount_self     = dataList$amount_self
     amount_other    = dataList$amount_other
     amount_default  = dataList$amount_default
     social_distance = dataList$social_distance
     inequality      = amount_other - amount_default # 0 for equal, 20 for TarMore
-    numTrial = 120
+    numTrial = length(amount_self)
     
     # allocating # trial X nrep
     fakesplit <- array(0, c(nrep, numTrial))
@@ -68,8 +63,8 @@ M18_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
 
     for (n in 1:nrep){
       for (t in 1:numTrial) {
-        ev_self = (amount_self[1, t] - amount_default[1, t]) * beta
-        ev_other = (amount_other[1, t]) * exp(-1 * ( k * social_distance[i, t]))  - eta * inequality[i, t]
+        ev_self = (amount_self[t] - amount_default[t]) * beta
+        ev_other = (amount_other[t]) * exp(-1 * ( k * social_distance[t]))  - eta * inequality[t]
         SVnet[1, t] =  ev_other - ev_self
         psplit[1, t] = 1 / (1 + exp(-1*tau*SVnet[1,t]))
         psplit[1, t]  = psplit[1,t] * 0.9998 + 0.0001    
@@ -77,7 +72,7 @@ M18_simulator_psplit = function(dataList, k, beta, tau, eta, nrep) {
       }
       #this will give 1 or 0
     }
-  }
+
   #print(psplit[1,])
   #print(fakesplit[1,])
   # #return(psplit) #for returning probabilites
