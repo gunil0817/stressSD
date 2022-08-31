@@ -51,11 +51,11 @@ M18 = stan("finalModels/M18.stan", data= datWhole, pars = c("k", 'beta', "tau", 
                                                             "log_lik", "mu_k", "mu_beta", "mu_eta", "mu_tau"),
            iter = 8000, warmup = 4000, chains = 4, cores = 80, control = list(adapt_delta = 0.982))
 
-M14 = stan("models/winModelClass.stan", data = datWhole, 
+M14 = stan("finalModels/M14.stan", data = datWhole, 
                  pars = c("k", "beta", "tau",
                           "log_lik", 
                           "mu_beta", "mu_k", "mu_tau"),
-                 iter = 8000, warmup=4000, chains=4, cores=80, control = list(adapt_delta = 0.98))
+                 iter = 6000, warmup=2000, chains=4, cores=80, control = list(adapt_delta = 0.98))
 
 M13 = stan("models/M13.stan", data= datWhole, pars = c("k", 'beta', "tau", "eta", 
                                                              "log_lik", "mu_k", "mu_beta", "mu_eta", "mu_tau"),
@@ -96,13 +96,13 @@ M6 = stan("models/M6.stan", data= datWhole, pars = c("k", "tau", "beta", "log_li
                                                           "mu_k", "mu_tau",  "mu_beta"),
           iter = 8000, warmup = 3000, chains = 4, cores = 40, control = list(adapt_delta = 0.95))
 
-M7 = stan("models/M7.stan", data= datWhole, pars = c("k", "tau", "beta", "log_lik", 
+M7 = stan("finalModels/M7.stan", data= datWhole, pars = c("k", "tau", "beta", "log_lik", 
                                                                    "mu_k", "mu_tau",  "mu_beta"),
-              iter = 8000, warmup = 3000, chains = 4, cores = 40, control = list(adapt_delta = 0.95))
+              iter = 6000, warmup = 2000, chains = 4, cores = 40, control = list(adapt_delta = 0.98))
 
-M8 = stan("models/M8.stan", data= datWhole, pars = c("k", "tau", "beta", "log_lik", 
+M8 = stan("finalModels/M8.stan", data= datWhole, pars = c("k", "tau", "beta", "log_lik", 
                                                                "mu_k", "mu_tau",  "mu_beta"),
-          iter = 8000, warmup = 3000, chains = 4, cores = 80, control = list(adapt_delta = 0.95))
+          iter = 6000, warmup = 2000, chains = 4, cores = 100, control = list(adapt_delta = 0.98))
 
 M9 = stan("models/M9.stan", data= datWhole, pars = c("k", "tau", "beta", "log_lik", 
                                                           "mu_k", "mu_tau",  "mu_beta"),
@@ -169,18 +169,25 @@ traceplot(M16, pars = c("eta"))
 
 
 #model comparison
-looM = loo_model(defaultM)
+
+loo11 = loo_model(M11)
+loo10 = loo_model(M10)
+loo9 = loo_model(M9)
 loo14 = loo_model(M14)
-loo16 = loo_model(M16)
+loo12 = loo_model(expdd_m12)
+looM = loo_model(defaultM)
 loo15 = loo_model(M15)
+loo16 = loo_model(M16)
 loo17 = loo_model(M17)
 loo18 = loo_model(M18)
+comp = loo_compare(loo9, loo10, loo11, loo12, loo14, looM, loo18)
+comp = loo_compare(loo14, loo15, loo16, loo17, loo18, looM)
 comp = loo_compare(looM, loo15, loo17, loo16, loo18)
 print(comp, simplify = FALSE)
 
 
 #model weighting
-model_list <- list( M14, M16)
+model_list <- list(M14, defaultM, M18)
 log_lik_list <- lapply(model_list, extract_log_lik)
 
 r_eff_list <- lapply(model_list, function(x) {
@@ -189,7 +196,6 @@ r_eff_list <- lapply(model_list, function(x) {
 })
 
 #stacking method:
-
 wts1 <- loo_model_weights(log_lik_list, 
                           method = "stacking",
                           r_eff_list = r_eff_list,

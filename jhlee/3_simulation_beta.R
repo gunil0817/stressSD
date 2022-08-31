@@ -34,7 +34,7 @@ data_behav <- read.table(FILE_DATA, sep = '\t', header = T)
   # BETA = seq(0.15,1.45,0.15)
   BETA = seq(0.3, 1.5, .2)
   # ETA = c(0.1, 0.6)
-  ETA = .2
+  ETA = 0
   #BETA = seq(0.1,0.7,0.05)
   nrep = 1                   # number of repetition for now
   nump = length(BETA)
@@ -161,7 +161,7 @@ sigmoid <- function(tau, x){
 # plot
 # FIGURE 2A 
 # for beta 
-tau = 0.5
+tau = 0.6
 gg_beta <- cbind(df_social_distance,
       as.data.frame.table(t(SVnet)) %>% 
       mutate(SVnet = Freq) %>% 

@@ -32,7 +32,7 @@ data_behav <- read.table(FILE_DATA, sep = '\t', header = T)
   #TAU = c(.05, 0.3, 0.5, .7, 1)
   TAU = c(.6) # tau values are pinpointed to see the dyanmics of K and beta
   # BETA = seq(0.15,1.45,0.15)
-  BETA = seq(0.8)
+  BETA = 0.6
   # ETA = c(0.1, 0.6)
   ETA = seq(0,.8,.15)
   #BETA = seq(0.1,0.7,0.05)
@@ -60,9 +60,9 @@ data_behav <- read.table(FILE_DATA, sep = '\t', header = T)
 {
 SD1= seq(1,100, 2)
 AS = c(19, 25, 31, 37, 43, 19, 25, 31, 37, 43)
-AO = c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20)
-AD = c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20)
-iq = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+AO = c(30, 30, 30, 30, 30, 30, 30, 30, 30, 30)
+AD = c(10, 10, 10, 10, 10, 10, 10, 10, 10, 10)
+iq = c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20)
 
 rewards = cbind(AS,AO,AD,iq)
 rewardsMat = repmat(rewards, 50, 1)
@@ -161,7 +161,7 @@ sigmoid <- function(tau, x){
 # plot
 # FIGURE 2A 
 # for beta 
-tau = 0.5
+tau = 0.6
 gg_beta <- cbind(df_social_distance,
       as.data.frame.table(t(SVnet)) %>% 
       mutate(SVnet = Freq) %>% 
@@ -180,12 +180,12 @@ gg_beta <- cbind(df_social_distance,
     y = mean(y)
   ) %>% 
 
-  ggplot(aes(x = x, y = y, color = "red")) + 
+  ggplot(aes(x = x, y = y, color = subjID)) + 
   geom_point(size=2.5) +
   geom_line(size=1.1) + 
   coord_cartesian(ylim = c(0, 1.0)) + 
-  #scale_color_viridis(discrete = TRUE, 
-  #                    name = TeX("$\\k$")) +
+  scale_color_viridis(discrete = TRUE, 
+                      name = TeX("$\\k$")) +
   xlab("Social distance") + 
   ylab("Probability split") + 
   theme_bw()+
@@ -207,6 +207,6 @@ gg_beta
 
 
 # Save the figure -------------------------------------
-ggsave2(file.path(PATH_FIGURES, sprintf('%s_simulated_tarSame_change.png', NAME_MODEL)), gg_beta,
+ggsave2(file.path(PATH_FIGURES, sprintf('%s_simulated_tarMore2_change.png', NAME_MODEL)), gg_beta,
         dpi = 600, width = 9, height = 9)
 
