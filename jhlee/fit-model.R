@@ -2,6 +2,7 @@ library(rstan)
 library(ggbump)
 library(ggplot2)
 library(tidyverse)
+library(loo)
 
 options(mc.cores =4)
 
@@ -11,7 +12,7 @@ FOLDER_STAN = sprintf('%smodels/', FOLDER_MODEL)
 FOLDER_OUTPUT = sprintf('%sstan-output/', FOLDER_MODEL)
 MODEL_OUTPUT = sprintf('%smodel-output/', FOLDER_MODEL)
 
-NAME_MODEL = "M18"
+NAME_MODEL = "M12"
 
 FILE_DATA = sprintf("%sdata/SD_120_whole_n41_fairSeq.txt", FOLDER_MODEL)
 FILE_MODEL = sprintf('%s%s.stan', FOLDER_STAN, NAME_MODEL)
@@ -20,8 +21,8 @@ FILE_OUTPUT = sprintf('%soutput_%s.RData', '/data2/project_SD/stan-output/', NAM
 FILE_MODEL_OUTPUT = sprintf('%sparam_output_%s.RData', '/data2/project_SD/model-output/', NAME_MODEL)
 # FILE_MODEL_OUTPUT = sprintf('%sparam_output_%s.RData', MODEL_OUTPUT, NAME_MODEL)
 
-POI = c("mu_k", "mu_beta", "mu_tau", "mu_eta", 
-        "k", "beta", "tau", "eta",
+POI = c("mu_k", "mu_beta", "mu_tau", 
+        "k", "beta", "tau", 
         "log_lik")
 
 # Read data
@@ -37,7 +38,7 @@ data <- read.table(FILE_DATA, sep = '\t', header = T)
   #TAU = c(.05, 0.3, 0.5, .7, 1)
   TAU = c(2) # tau values are pinpointed to see the dyanmics of K and beta
   BETA = seq(0.15,1.45,0.15)
-  ETA = c(0.1, 0.6)
+  # ETA = c(0.1, 0.6)
   #BETA = seq(0.1,0.7,0.05)
   nrep = 1                   # number of repetition for now
   nump = length(unique(data$subjID))
@@ -211,4 +212,17 @@ parameters <- rstan::extract(output)
 saveRDS(parameters, file = FILE_MODEL_OUTPUT)
 
 system(sprintf("slackbot -d '@jeunghyunlee' -m 'model fitting complete - %s'", NAME_MODEL))
+
+
+# Do not run as Rscript 
+# HC, bayes model 
+# PATH_CACHE <- '/data2/project_SD/stan-output'
+# model_name <- 'M16'
+# fn_cache <- file.path(PATH_CACHE, sprintf('output_%s.RData', model_name))
+# 
+# # Load cached fitted models
+# load(fn_cache)
+# loo(output, save_psis = TRUE)
+
+
 
